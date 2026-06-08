@@ -173,9 +173,13 @@ struct PluginEditorView: View {
 
                     switch iconType {
                     case .emoji:
-                        TextField("Emoji Icon", text: $iconEmoji)
                         HStack {
-                            Text("Preview:")
+                            TextField("Emoji", text: $iconEmoji)
+                                .frame(width: 60)
+                            Button("Choose Emoji…") {
+                                NSApp.orderFrontCharacterPalette(nil)
+                            }
+                            Spacer()
                             Text(iconEmoji).font(.title)
                         }
 
