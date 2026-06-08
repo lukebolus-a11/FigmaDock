@@ -21,6 +21,8 @@ struct DockView: View {
         }
         .padding(12)
         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+        .brightness(store.settings.dockBrightness)
+        .opacity(store.settings.dockOpacity)
     }
 
     @ViewBuilder

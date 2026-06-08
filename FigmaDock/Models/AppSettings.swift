@@ -10,6 +10,8 @@ struct AppSettings: Codable, Sendable {
     var showDockOnLaunch: Bool = true
     var alwaysOnTop: Bool = true
     var iconSize: Double = 44
+    var dockOpacity: Double = 1.0
+    var dockBrightness: Double = 0.0
 
     var quickActionsKeyCode: UInt16 { 0x2C }
     var quickActionsModifiers: CGEventFlags { .maskCommand }

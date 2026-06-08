@@ -345,6 +345,14 @@ struct AppearanceTab: View {
 
             Toggle("Always on top", isOn: $store.settings.alwaysOnTop)
                 .help("Keep the dock floating above all other windows")
+
+            Slider(value: $store.settings.dockOpacity, in: 0.2...1.0, step: 0.05) {
+                Text("Opacity: \(Int(store.settings.dockOpacity * 100))%")
+            }
+
+            Slider(value: $store.settings.dockBrightness, in: -0.3...0.3, step: 0.05) {
+                Text("Brightness: \(Int(store.settings.dockBrightness * 100))")
+            }
         }
         .formStyle(.grouped)
         .onChange(of: store.settings.dockOrientation) { _, _ in store.save() }
@@ -354,6 +362,8 @@ struct AppearanceTab: View {
             store.save()
             dockController.updateAlwaysOnTop(newValue)
         }
+        .onChange(of: store.settings.dockOpacity) { _, _ in store.save() }
+        .onChange(of: store.settings.dockBrightness) { _, _ in store.save() }
     }
 }
 
