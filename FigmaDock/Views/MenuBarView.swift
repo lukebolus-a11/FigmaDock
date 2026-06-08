@@ -14,7 +14,7 @@ struct MenuBarView: View {
                     launchPlugin(plugin)
                 } label: {
                     HStack {
-                        pluginIconView(plugin.icon, size: 16)
+                        PluginIconView(icon: plugin.icon, size: 16)
                         Text(plugin.displayName)
                         Spacer()
                         if let hotkey = plugin.hotkey {
@@ -35,10 +35,8 @@ struct MenuBarView: View {
 
         Divider()
 
-        SettingsLink {
-            Text("Settings...")
-        }
-        .keyboardShortcut(",", modifiers: .command)
+        SettingsLink { Text("Settings...") }
+            .keyboardShortcut(",", modifiers: .command)
 
         Button("Quit FigmaDock") {
             NSApplication.shared.terminate(nil)

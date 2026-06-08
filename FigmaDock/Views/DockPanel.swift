@@ -1,7 +1,7 @@
 import AppKit
 import SwiftUI
 
-class DockPanel: NSPanel {
+final class DockPanel: NSPanel {
     override var canBecomeKey: Bool { false }
 
     init() {
@@ -27,25 +27,22 @@ class DockPanel: NSPanel {
 }
 
 @MainActor
-class DockPanelController: ObservableObject {
+final class DockPanelController: ObservableObject {
     private var panel: DockPanel?
-    @Published var isVisible: Bool = false
+    @Published private(set) var isVisible = false
 
     func show(store: PluginStore) {
         if panel == nil {
             let p = DockPanel()
             let hosting = NSHostingView(rootView: DockView(store: store))
-            hosting.frame = p.contentView?.bounds ?? .zero
             hosting.autoresizingMask = [.width, .height]
-            p.contentView?.addSubview(hosting)
+            p.contentView = hosting
             panel = p
         }
 
         panel?.setAlwaysOnTop(store.settings.alwaysOnTop)
         updateSize(store: store)
-        if !isVisible {
-            panel?.center()
-        }
+        if !isVisible { panel?.center() }
         panel?.orderFront(nil)
         isVisible = true
     }
@@ -56,11 +53,7 @@ class DockPanelController: ObservableObject {
     }
 
     func toggle(store: PluginStore) {
-        if isVisible {
-            hide()
-        } else {
-            show(store: store)
-        }
+        isVisible ? hide() : show(store: store)
     }
 
     func updateAlwaysOnTop(_ enabled: Bool) {
@@ -75,16 +68,10 @@ class DockPanelController: ObservableObject {
         let spacing: CGFloat = 6
         let gearSize = iconSize * 0.7
 
-        let width: CGFloat
-        let height: CGFloat
-
-        if store.settings.dockOrientation == .horizontal {
-            width = CGFloat(count) * (iconSize + spacing) + gearSize + spacing - spacing + padding * 2
-            height = iconSize + padding * 2
-        } else {
-            width = iconSize + padding * 2
-            height = CGFloat(count) * (iconSize + spacing) + gearSize + spacing - spacing + padding * 2
-        }
+        let isHorizontal = store.settings.dockOrientation == .horizontal
+        let contentLength = CGFloat(count) * (iconSize + spacing) + gearSize
+        let width = isHorizontal ? contentLength + padding * 2 : iconSize + padding * 2
+        let height = isHorizontal ? iconSize + padding * 2 : contentLength + padding * 2
 
         let origin = panel.frame.origin
         panel.setFrame(NSRect(x: origin.x, y: origin.y, width: width, height: height), display: true)

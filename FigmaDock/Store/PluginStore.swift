@@ -2,7 +2,7 @@ import Foundation
 import SwiftUI
 
 @MainActor
-class PluginStore: ObservableObject {
+final class PluginStore: ObservableObject {
     @Published var plugins: [PluginShortcut] = []
     @Published var settings: AppSettings = AppSettings()
     @Published var isDockVisible: Bool = true
@@ -34,10 +34,9 @@ class PluginStore: ObservableObject {
     }
 
     func updatePlugin(_ plugin: PluginShortcut) {
-        if let idx = plugins.firstIndex(where: { $0.id == plugin.id }) {
-            plugins[idx] = plugin
-            save()
-        }
+        guard let idx = plugins.firstIndex(where: { $0.id == plugin.id }) else { return }
+        plugins[idx] = plugin
+        save()
     }
 
     func deletePlugin(_ plugin: PluginShortcut) {
@@ -54,6 +53,8 @@ class PluginStore: ObservableObject {
         plugins.move(fromOffsets: source, toOffset: destination)
         save()
     }
+
+    // MARK: - Persistence
 
     private static func decode<T: Decodable>(from url: URL) -> T? {
         guard let data = try? Data(contentsOf: url) else { return nil }

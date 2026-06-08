@@ -1,7 +1,7 @@
 import Foundation
 import Carbon.HIToolbox
 
-struct PluginShortcut: Identifiable, Codable, Hashable {
+struct PluginShortcut: Identifiable, Codable, Hashable, Sendable {
     var id: UUID = UUID()
     var name: String
     var displayName: String
@@ -17,39 +17,34 @@ struct PluginShortcut: Identifiable, Codable, Hashable {
         self.sortOrder = sortOrder
     }
 
-    enum PluginIcon: Codable, Hashable {
+    enum PluginIcon: Codable, Hashable, Sendable {
         case emoji(String)
         case sfSymbol(String)
         case customImage(String)
-
-        var displayString: String {
-            switch self {
-            case .emoji(let s): return s
-            case .sfSymbol(let s): return s
-            case .customImage(let s): return s
-            }
-        }
     }
 
-    struct HotkeyCombo: Codable, Hashable {
+    struct HotkeyCombo: Codable, Hashable, Sendable {
         var keyCode: UInt32
         var modifiers: UInt32
 
         var useCommand: Bool {
-            get { modifiers & UInt32(cmdKey) != 0 }
-            set { if newValue { modifiers |= UInt32(cmdKey) } else { modifiers &= ~UInt32(cmdKey) } }
+            get { hasModifier(cmdKey) }
+            set { setModifier(cmdKey, enabled: newValue) }
         }
+
         var useOption: Bool {
-            get { modifiers & UInt32(optionKey) != 0 }
-            set { if newValue { modifiers |= UInt32(optionKey) } else { modifiers &= ~UInt32(optionKey) } }
+            get { hasModifier(optionKey) }
+            set { setModifier(optionKey, enabled: newValue) }
         }
+
         var useControl: Bool {
-            get { modifiers & UInt32(controlKey) != 0 }
-            set { if newValue { modifiers |= UInt32(controlKey) } else { modifiers &= ~UInt32(controlKey) } }
+            get { hasModifier(controlKey) }
+            set { setModifier(controlKey, enabled: newValue) }
         }
+
         var useShift: Bool {
-            get { modifiers & UInt32(shiftKey) != 0 }
-            set { if newValue { modifiers |= UInt32(shiftKey) } else { modifiers &= ~UInt32(shiftKey) } }
+            get { hasModifier(shiftKey) }
+            set { setModifier(shiftKey, enabled: newValue) }
         }
 
         var displayString: String {
@@ -62,8 +57,21 @@ struct PluginShortcut: Identifiable, Codable, Hashable {
             return parts.joined()
         }
 
-        static var `default`: HotkeyCombo {
-            HotkeyCombo(keyCode: 0x12, modifiers: UInt32(cmdKey) | UInt32(optionKey))
+        static let `default` = HotkeyCombo(
+            keyCode: 0x12,
+            modifiers: UInt32(cmdKey) | UInt32(optionKey)
+        )
+
+        private func hasModifier(_ key: Int) -> Bool {
+            modifiers & UInt32(key) != 0
+        }
+
+        private mutating func setModifier(_ key: Int, enabled: Bool) {
+            if enabled {
+                modifiers |= UInt32(key)
+            } else {
+                modifiers &= ~UInt32(key)
+            }
         }
     }
 }
@@ -80,11 +88,9 @@ enum KeyCodeMap {
         ("Z", 0x06),
     ]
 
-    private static let names: [UInt32: String] = {
-        var map: [UInt32: String] = [:]
-        for key in allKeys { map[key.code] = key.name }
-        return map
-    }()
+    private static let names: [UInt32: String] = Dictionary(
+        uniqueKeysWithValues: allKeys.map { ($0.code, $0.name) }
+    )
 
     static func name(for keyCode: UInt32) -> String {
         names[keyCode] ?? "Key\(keyCode)"

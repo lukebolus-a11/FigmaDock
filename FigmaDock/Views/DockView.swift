@@ -40,13 +40,7 @@ struct DockView: View {
 
     private var settingsButton: some View {
         Button {
-            NSApp.activate(ignoringOtherApps: true)
-            if #available(macOS 14, *) {
-                NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
-            }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                NSApp.sendAction(Selector(("showPreferencesWindow:")), to: nil, from: nil)
-            }
+            NotificationCenter.default.post(name: .openSettings, object: nil)
         } label: {
             Image(systemName: "gearshape.fill")
                 .font(.system(size: store.settings.iconSize * 0.35))

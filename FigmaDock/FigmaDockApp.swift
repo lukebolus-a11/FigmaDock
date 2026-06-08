@@ -2,6 +2,7 @@ import SwiftUI
 
 @main
 struct FigmaDockApp: App {
+    @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @StateObject private var store = PluginStore()
     @StateObject private var dockController = DockPanelController()
 
@@ -18,32 +19,25 @@ struct FigmaDockApp: App {
 
     init() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            Self.onLaunch()
-        }
-    }
-
-    private static func onLaunch() {
-        if !AccessibilityManager.isTrusted {
-            AccessibilityManager.requestTrust()
+            if !AccessibilityManager.isTrusted {
+                AccessibilityManager.requestTrust()
+            }
         }
     }
 }
 
-class AppDelegate: NSObject, NSApplicationDelegate {
-    var store: PluginStore?
-    var dockController: DockPanelController?
-
+final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
-        guard let store, let dockController else { return }
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleOpenSettings),
+            name: .openSettings,
+            object: nil
+        )
+    }
 
-        if store.settings.showDockOnLaunch {
-            dockController.show(store: store)
-        }
-
-        GlobalHotkeyManager.shared.registerAll(plugins: store.plugins) { plugin in
-            Task {
-                try? await FigmaAutomation(settings: store.settings).launchPlugin(named: plugin.name)
-            }
-        }
+    @objc private func handleOpenSettings() {
+        NSApp.activate(ignoringOtherApps: true)
+        NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
     }
 }

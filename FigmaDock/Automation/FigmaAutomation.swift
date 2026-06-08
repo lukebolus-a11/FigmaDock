@@ -7,18 +7,16 @@ enum AutomationError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .figmaNotRunning: return "Figma is not running. Please open Figma first."
-        case .accessibilityNotTrusted: return "Accessibility permission required. Open Settings to grant access."
+        case .figmaNotRunning:
+            "Figma is not running. Please open Figma first."
+        case .accessibilityNotTrusted:
+            "Accessibility permission required. Open Settings to grant access."
         }
     }
 }
 
-class FigmaAutomation {
+struct FigmaAutomation: Sendable {
     let settings: AppSettings
-
-    init(settings: AppSettings) {
-        self.settings = settings
-    }
 
     func launchPlugin(named pluginName: String) async throws {
         guard AccessibilityManager.isTrusted else {
@@ -32,18 +30,14 @@ class FigmaAutomation {
         }
 
         figma.activate()
-        try await sleep(settings.activationDelay)
+        try await Task.sleep(for: .milliseconds(Int(settings.activationDelay * 1000)))
 
         KeySimulator.tap(keyCode: settings.quickActionsKeyCode, flags: settings.quickActionsModifiers)
-        try await sleep(settings.commandSlashDelay)
+        try await Task.sleep(for: .milliseconds(Int(settings.commandSlashDelay * 1000)))
 
-        await KeySimulator.typeString(pluginName, delay: settings.typingDelay)
-        try await sleep(settings.enterDelay)
+        await KeySimulator.typeString(pluginName, characterDelay: settings.typingDelay)
+        try await Task.sleep(for: .milliseconds(Int(settings.enterDelay * 1000)))
 
-        KeySimulator.tap(keyCode: 0x24) // Return
-    }
-
-    private func sleep(_ duration: TimeInterval) async throws {
-        try await Task.sleep(nanoseconds: UInt64(duration * 1_000_000_000))
+        KeySimulator.tap(keyCode: 0x24)
     }
 }
