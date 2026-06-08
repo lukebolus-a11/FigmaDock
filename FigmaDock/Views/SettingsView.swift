@@ -24,6 +24,7 @@ struct SettingsView: View {
 struct PluginListTab: View {
     @ObservedObject var store: PluginStore
     @State private var isShowingEditor = false
+    @State private var isShowingBulkImport = false
     @State private var editingPlugin: PluginShortcut?
 
     var body: some View {
@@ -49,6 +50,10 @@ struct PluginListTab: View {
                 Button { isShowingEditor = true } label: {
                     Image(systemName: "plus")
                 }
+                Button { isShowingBulkImport = true } label: {
+                    Image(systemName: "list.bullet.clipboard")
+                }
+                .help("Bulk import plugins")
                 Spacer()
                 Text("\(store.plugins.count) plugin\(store.plugins.count == 1 ? "" : "s")")
                     .font(.caption)
@@ -58,6 +63,9 @@ struct PluginListTab: View {
         }
         .sheet(isPresented: $isShowingEditor) {
             PluginEditorView(store: store, plugin: nil)
+        }
+        .sheet(isPresented: $isShowingBulkImport) {
+            BulkImportView(store: store)
         }
         .sheet(item: $editingPlugin) { plugin in
             PluginEditorView(store: store, plugin: plugin)
@@ -427,5 +435,96 @@ private struct DelaySlider: View {
                 .frame(width: 50, alignment: .trailing)
         }
         Slider(value: $value, in: range, step: 0.01)
+    }
+}
+
+// MARK: - Bulk Import
+
+struct BulkImportView: View {
+    @ObservedObject var store: PluginStore
+    @Environment(\.dismiss) private var dismiss
+    @State private var text = ""
+    @State private var importedCount = 0
+
+    private var parsedNames: [String] {
+        text
+            .components(separatedBy: .newlines)
+            .map { $0.trimmingCharacters(in: .whitespaces) }
+            .filter { !$0.isEmpty }
+    }
+
+    private var duplicateCount: Int {
+        let existing = Set(store.plugins.map { $0.name.lowercased() })
+        return parsedNames.filter { existing.contains($0.lowercased()) }.count
+    }
+
+    private var newCount: Int {
+        parsedNames.count - duplicateCount
+    }
+
+    var body: some View {
+        VStack(spacing: 16) {
+            Text("Bulk Import Plugins")
+                .font(.headline)
+
+            Text("Paste plugin names below, one per line. These should match exactly how they appear in Figma's Quick Actions (⌘/).")
+                .font(.callout)
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+            TextEditor(text: $text)
+                .font(.system(.body, design: .monospaced))
+                .frame(minHeight: 200)
+                .border(.quaternary)
+
+            HStack {
+                if !parsedNames.isEmpty {
+                    Text("\(parsedNames.count) plugin\(parsedNames.count == 1 ? "" : "s") found")
+                    if duplicateCount > 0 {
+                        Text("(\(duplicateCount) already exist)")
+                            .foregroundStyle(.orange)
+                    }
+                }
+                Spacer()
+            }
+            .font(.caption)
+            .foregroundStyle(.secondary)
+
+            if importedCount > 0 {
+                Label("Imported \(importedCount) plugin\(importedCount == 1 ? "" : "s")", systemImage: "checkmark.circle.fill")
+                    .foregroundStyle(.green)
+            }
+
+            HStack {
+                Button("Cancel") { dismiss() }
+                    .keyboardShortcut(.cancelAction)
+
+                Spacer()
+
+                Button("Import \(newCount) Plugin\(newCount == 1 ? "" : "s")") {
+                    importPlugins()
+                }
+                .keyboardShortcut(.defaultAction)
+                .disabled(newCount == 0)
+            }
+        }
+        .padding()
+        .frame(width: 480, height: 420)
+    }
+
+    private func importPlugins() {
+        let existing = Set(store.plugins.map { $0.name.lowercased() })
+        var count = 0
+
+        for name in parsedNames where !existing.contains(name.lowercased()) {
+            store.addPlugin(PluginShortcut(name: name))
+            count += 1
+        }
+
+        importedCount = count
+        if count > 0 {
+            text = ""
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) { dismiss() }
+        }
     }
 }
