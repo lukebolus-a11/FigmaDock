@@ -10,5 +10,8 @@ DerivedData/
 *.swp
 *~
 
+# Build output
+build/
+
 # Generated
 FigmaDock.xcodeproj/
