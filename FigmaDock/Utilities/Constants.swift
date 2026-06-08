@@ -16,7 +16,3 @@ enum Constants {
         try? FileManager.default.createDirectory(at: appSupportDir, withIntermediateDirectories: true)
     }
 }
-
-extension Notification.Name {
-    static let openSettings = Notification.Name("FigmaDock.openSettings")
-}

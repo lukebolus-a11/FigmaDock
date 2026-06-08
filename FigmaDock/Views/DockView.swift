@@ -3,6 +3,7 @@ import AppKit
 
 struct DockView: View {
     @ObservedObject var store: PluginStore
+    @Environment(\.openSettings) private var openSettings
 
     var body: some View {
         Group {
@@ -40,7 +41,8 @@ struct DockView: View {
 
     private var settingsButton: some View {
         Button {
-            NotificationCenter.default.post(name: .openSettings, object: nil)
+            NSApp.activate(ignoringOtherApps: true)
+            openSettings()
         } label: {
             Image(systemName: "gearshape.fill")
                 .font(.system(size: store.settings.iconSize * 0.35))

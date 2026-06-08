@@ -2,7 +2,6 @@ import SwiftUI
 
 @main
 struct FigmaDockApp: App {
-    @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @StateObject private var store = PluginStore()
     @StateObject private var dockController = DockPanelController()
 
@@ -23,21 +22,5 @@ struct FigmaDockApp: App {
                 AccessibilityManager.requestTrust()
             }
         }
-    }
-}
-
-final class AppDelegate: NSObject, NSApplicationDelegate {
-    func applicationDidFinishLaunching(_ notification: Notification) {
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(handleOpenSettings),
-            name: .openSettings,
-            object: nil
-        )
-    }
-
-    @objc private func handleOpenSettings() {
-        NSApp.activate(ignoringOtherApps: true)
-        NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
     }
 }
