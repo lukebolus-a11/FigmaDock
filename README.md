@@ -22,99 +22,142 @@ FigmaDock automates a simple sequence using macOS Accessibility:
 3. Types the plugin name
 4. Presses Enter to launch it
 
-## Installation
+## Quick Start (Install the DMG)
 
-### From DMG (recommended for team distribution)
+The fastest way to get running — no Xcode or command line needed.
 
-1. Download `FigmaDock.dmg` from [Releases](../../releases)
-2. Double-click to mount
-3. Drag **FigmaDock** into **Applications**
-4. Launch FigmaDock — it appears in the menu bar (not the Dock)
-5. Grant **Accessibility** permission when prompted (System Settings → Privacy & Security → Accessibility)
+1. Go to [**Releases**](../../releases) and download **FigmaDock.dmg**
+2. Double-click the DMG to mount it
+3. Drag **FigmaDock** into the **Applications** folder
+4. Open **FigmaDock** from Applications — it appears in the **menu bar** (not the Dock)
+5. Grant **Accessibility** permission when prompted:
+   - System Settings → Privacy & Security → Accessibility → enable FigmaDock
 
-> **macOS Gatekeeper note:** Since the app is ad-hoc signed (no Apple Developer ID), you may see _"can't be opened because Apple cannot check it for malicious software"_. To bypass this:
-> - **Right-click** the app → **Open**, or
-> - Go to **System Settings → Privacy & Security** → click **Open Anyway**
->
-> This only needs to be done once.
+### First launch — Gatekeeper warning
 
-### Build from source
+Since the app is ad-hoc signed (no Apple Developer ID), macOS may show:
 
-**Requirements:** macOS 14+, Xcode 15+, [xcodegen](https://github.com/yonaskolb/XcodeGen)
+> _"FigmaDock can't be opened because Apple cannot check it for malicious software"_
+
+To fix this (one-time only):
+- **Right-click** FigmaDock.app → click **Open**, then click **Open** again in the dialog
+- Or: System Settings → Privacy & Security → scroll down → click **Open Anyway**
+
+## Usage
+
+1. **Click the menu bar icon** (grid icon) to see your plugins and access settings
+2. **Add plugins** — menu bar → Settings → Plugins tab → click **+**
+   - **Shortcut name**: this is the label you see in the dock
+   - **Figma plugin or action name**: the exact text Figma uses in Quick Actions (⌘/)
+   - **Icon**: choose emoji, SF Symbol, or upload a custom image
+   - **Global hotkey** (optional): assign a keyboard shortcut like ⌥⌘1
+3. **Launch a plugin** — click its button in the floating dock, or use the menu bar dropdown, or press its hotkey
+4. **Drag the dock** anywhere on screen to reposition it
+5. **Gear icon** in the dock opens Settings directly
+6. **Adjust timing** in Settings → Automation if plugins aren't launching reliably (increase delays for slower machines)
+
+## Settings
+
+| Tab | What it controls |
+|-----|-----------------|
+| **Plugins** | Add, edit, remove, and reorder plugin shortcuts. Double-click to edit. |
+| **Appearance** | Dock orientation (horizontal/vertical), icon size, always-on-top, show on launch |
+| **Automation** | Timing delays, accessibility permission status, test automation button |
+
+## Build from Source
+
+If you want to modify FigmaDock or build it yourself.
+
+### Prerequisites
+
+- macOS 14 (Sonoma) or later
+- Xcode 15+
+- [xcodegen](https://github.com/yonaskolb/XcodeGen) (`brew install xcodegen`)
+
+### Clone and run
 
 ```bash
-# Install xcodegen if you don't have it
-brew install xcodegen
-
-# Clone and build
 git clone https://github.com/lukebolus-a11/FigmaDock.git
 cd FigmaDock
-xcodegen generate
-open FigmaDock.xcodeproj
-# Build and run in Xcode (⌘R)
+xcodegen generate        # generates FigmaDock.xcodeproj from project.yml
+open FigmaDock.xcodeproj # open in Xcode
+# Press ⌘R to build and run
 ```
 
 ### Build a DMG for distribution
 
 ```bash
 ./scripts/build-dmg.sh
-# Output: build/FigmaDock.dmg
+# Creates build/FigmaDock.dmg ready to share
 ```
 
-## Usage
+## Contributing (Internal Team)
 
-1. **Click the menu bar icon** (grid icon) to see your plugins and settings
-2. **Add plugins** via Settings → Plugins tab → click **+**
-   - Enter the exact plugin name as it appears in Figma's Quick Actions
-   - Choose an icon (emoji, SF Symbol, or upload an image)
-   - Optionally assign a global hotkey
-3. **Click a dock button** or use the menu bar dropdown to launch a plugin
-4. **Drag the dock** to reposition it on screen
-5. **Adjust timing** in Settings → Automation if plugins aren't launching reliably
+### Branching
 
-## Settings
+```bash
+# Create a feature branch
+git checkout -b feature/my-new-thing
 
-| Tab | What it controls |
-|-----|-----------------|
-| **Plugins** | Add, edit, remove, and reorder plugin shortcuts |
-| **Appearance** | Dock orientation (horizontal/vertical), icon size, always-on-top, show on launch |
-| **Automation** | Timing delays (activation, quick actions, typing, enter), accessibility status, test button |
+# Make changes, then commit
+git add -A
+git commit -m "Add my new thing"
+
+# Push your branch
+git push -u origin feature/my-new-thing
+
+# Open a PR on GitHub
+gh pr create --title "Add my new thing" --body "Description of changes"
+```
+
+### After pulling changes
+
+The Xcode project file is gitignored (it's generated). After pulling, regenerate it:
+
+```bash
+xcodegen generate
+```
+
+Then open `FigmaDock.xcodeproj` as normal.
 
 ## Project Structure
 
 ```
 FigmaDock/
 ├── Models/
-│   ├── PluginShortcut.swift      # Plugin data model with icon and hotkey support
-│   └── AppSettings.swift         # App preferences (delays, appearance, etc.)
+│   ├── PluginShortcut.swift        # Plugin data model (name, icon, hotkey)
+│   └── AppSettings.swift           # Preferences (delays, appearance)
 ├── Store/
-│   └── PluginStore.swift         # JSON persistence for plugins and settings
+│   └── PluginStore.swift           # JSON persistence (~/.config/FigmaDock/)
 ├── Automation/
-│   ├── FigmaAutomation.swift     # Core automation sequence
-│   ├── KeySimulator.swift        # CGEvent keystroke simulation
-│   └── AccessibilityManager.swift # macOS Accessibility permission handling
+│   ├── FigmaAutomation.swift       # Core: activate Figma → ⌘/ → type → Enter
+│   ├── KeySimulator.swift          # CGEvent keystroke posting
+│   └── AccessibilityManager.swift  # macOS Accessibility permission
 ├── Hotkeys/
-│   └── GlobalHotkeyManager.swift # Carbon global hotkey registration
+│   └── GlobalHotkeyManager.swift   # Carbon global hotkey registration
 ├── Views/
-│   ├── DockPanel.swift           # NSPanel subclass (floating, non-activating)
-│   ├── DockView.swift            # SwiftUI dock strip with icon buttons
-│   ├── MenuBarView.swift         # Menu bar dropdown
-│   ├── SettingsView.swift        # Preferences window (tabbed)
+│   ├── DockPanel.swift             # Floating NSPanel (non-activating, always-on-top)
+│   ├── DockView.swift              # SwiftUI dock strip with icon buttons + gear
+│   ├── MenuBarView.swift           # Menu bar dropdown
+│   ├── SettingsView.swift          # Tabbed preferences (Plugins, Appearance, Automation)
 │   └── AccessibilityPromptView.swift
 ├── Utilities/
-│   ├── Constants.swift           # App constants and paths
-│   └── IconStorage.swift         # Custom icon image storage
-├── FigmaDockApp.swift            # App entry point
-├── Info.plist                    # LSUIElement (menu bar only app)
-└── FigmaDock.entitlements        # No sandbox (required for Accessibility)
+│   ├── Constants.swift             # Bundle IDs, file paths
+│   └── IconStorage.swift           # Custom icon image storage
+├── FigmaDockApp.swift              # @main app entry point
+├── Info.plist                      # LSUIElement = true (menu bar only)
+├── FigmaDock.entitlements          # App Sandbox disabled (required for Accessibility)
+├── project.yml                     # XcodeGen project definition
+└── scripts/
+    └── build-dmg.sh                # Builds release DMG for distribution
 ```
 
 ## Requirements
 
 - macOS 14 (Sonoma) or later
-- Figma desktop app
-- Accessibility permission (granted on first launch)
+- Figma desktop app (must be running)
+- Accessibility permission
 
 ## License
 
-Internal tool — not for public distribution.
+Internal tool — Monzo team use only.
