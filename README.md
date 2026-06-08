@@ -11,6 +11,8 @@ A native macOS menu bar app for launching Figma plugins with a single click. No 
 - **Configurable timing** — adjustable delays for different Figma setups
 - **Always on top** — toggle to keep the dock floating above other windows
 - **Unlimited plugins** — add as many shortcuts as you need
+- **Bulk import** — paste a list of plugin names (one per line) to add them all at once
+- **Emoji picker** — opens the macOS emoji keyboard when choosing an icon
 - **Drag to reorder** — rearrange plugins in the settings
 
 ## How It Works
@@ -49,8 +51,9 @@ To fix this (one-time only):
 2. **Add plugins** — menu bar → Settings → Plugins tab → click **+**
    - **Shortcut name**: this is the label you see in the dock
    - **Figma plugin or action name**: the exact text Figma uses in Quick Actions (⌘/)
-   - **Icon**: choose emoji, SF Symbol, or upload a custom image
-   - **Global hotkey** (optional): assign a keyboard shortcut like ⌥⌘1
+   - **Icon**: choose emoji (with system emoji picker), SF Symbol, or upload a custom image
+   - **Global hotkey** (optional): assign a keyboard shortcut like ⌥⌘1 with key picker and modifier checkboxes
+3. **Bulk import** — click the clipboard icon (next to **+**) to paste multiple plugin names at once, one per line. Duplicates are automatically detected and skipped.
 3. **Launch a plugin** — click its button in the floating dock, or use the menu bar dropdown, or press its hotkey
 4. **Drag the dock** anywhere on screen to reposition it
 5. **Gear icon** in the dock opens Settings directly
@@ -60,7 +63,7 @@ To fix this (one-time only):
 
 | Tab | What it controls |
 |-----|-----------------|
-| **Plugins** | Add, edit, remove, and reorder plugin shortcuts. Double-click to edit. |
+| **Plugins** | Add, edit, remove, reorder, and bulk import plugin shortcuts. Double-click to edit. |
 | **Appearance** | Dock orientation (horizontal/vertical), icon size, always-on-top, show on launch |
 | **Automation** | Timing delays, accessibility permission status, test automation button |
 
