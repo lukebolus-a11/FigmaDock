@@ -20,9 +20,17 @@ struct DockView: View {
             }
         }
         .padding(12)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
-        .brightness(store.settings.dockBrightness)
-        .opacity(store.settings.dockOpacity)
+        .background {
+            RoundedRectangle(cornerRadius: 16)
+                .fill(.ultraThinMaterial)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(store.settings.dockTint > 0
+                              ? Color.white.opacity(Double(store.settings.dockTint))
+                              : Color.black.opacity(Double(-store.settings.dockTint)))
+                )
+                .opacity(store.settings.dockOpacity)
+        }
     }
 
     @ViewBuilder

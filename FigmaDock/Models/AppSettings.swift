@@ -11,7 +11,12 @@ struct AppSettings: Codable, Sendable {
     var alwaysOnTop: Bool = true
     var iconSize: Double = 44
     var dockOpacity: Double = 1.0
-    var dockBrightness: Double = 0.0
+    var dockTint: Float = 0.0
+
+    var dockTintDouble: Double {
+        get { Double(dockTint) }
+        set { dockTint = Float(newValue) }
+    }
 
     var quickActionsKeyCode: UInt16 { 0x2C }
     var quickActionsModifiers: CGEventFlags { .maskCommand }

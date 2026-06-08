@@ -347,11 +347,11 @@ struct AppearanceTab: View {
                 .help("Keep the dock floating above all other windows")
 
             Slider(value: $store.settings.dockOpacity, in: 0.2...1.0, step: 0.05) {
-                Text("Opacity: \(Int(store.settings.dockOpacity * 100))%")
+                Text("Background Opacity: \(Int(store.settings.dockOpacity * 100))%")
             }
 
-            Slider(value: $store.settings.dockBrightness, in: -0.3...0.3, step: 0.05) {
-                Text("Brightness: \(Int(store.settings.dockBrightness * 100))")
+            Slider(value: $store.settings.dockTintDouble, in: -0.6...0.6, step: 0.05) {
+                Text("Background Tint: \(store.settings.dockTint > 0 ? "Lighter" : store.settings.dockTint < 0 ? "Darker" : "Neutral")")
             }
         }
         .formStyle(.grouped)
@@ -363,7 +363,7 @@ struct AppearanceTab: View {
             dockController.updateAlwaysOnTop(newValue)
         }
         .onChange(of: store.settings.dockOpacity) { _, _ in store.save() }
-        .onChange(of: store.settings.dockBrightness) { _, _ in store.save() }
+        .onChange(of: store.settings.dockTint) { _, _ in store.save() }
     }
 }
 
