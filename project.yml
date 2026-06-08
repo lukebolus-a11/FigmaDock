@@ -1,0 +1,25 @@
+name: FigmaDock
+options:
+  bundleIdPrefix: com.lukebolus
+  deploymentTarget:
+    macOS: "14.0"
+  xcodeVersion: "16.0"
+
+targets:
+  FigmaDock:
+    type: application
+    platform: macOS
+    sources:
+      - FigmaDock
+    settings:
+      base:
+        INFOPLIST_FILE: FigmaDock/Info.plist
+        CODE_SIGN_ENTITLEMENTS: FigmaDock/FigmaDock.entitlements
+        PRODUCT_BUNDLE_IDENTIFIER: com.lukebolus.FigmaDock
+        MARKETING_VERSION: "1.0.0"
+        CURRENT_PROJECT_VERSION: "1"
+        SWIFT_VERSION: "5.9"
+        MACOSX_DEPLOYMENT_TARGET: "14.0"
+        ENABLE_APP_SANDBOX: "NO"
+        CODE_SIGN_IDENTITY: "-"
+        PRODUCT_NAME: FigmaDock
