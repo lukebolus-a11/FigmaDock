@@ -18,10 +18,14 @@ enum KeySimulator {
             var unichars = Array(char.utf16)
 
             let down = CGEvent(keyboardEventSource: source, virtualKey: 0, keyDown: true)
+            // Clear any lingering modifiers (e.g. the Command from ⌘/) so typed
+            // characters aren't interpreted as shortcuts like ⌘M (minimize).
+            down?.flags = []
             down?.keyboardSetUnicodeString(stringLength: unichars.count, unicodeString: &unichars)
             down?.post(tap: .cghidEventTap)
 
             let up = CGEvent(keyboardEventSource: source, virtualKey: 0, keyDown: false)
+            up?.flags = []
             up?.keyboardSetUnicodeString(stringLength: unichars.count, unicodeString: &unichars)
             up?.post(tap: .cghidEventTap)
 
