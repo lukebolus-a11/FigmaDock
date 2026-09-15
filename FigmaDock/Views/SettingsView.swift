@@ -377,9 +377,13 @@ struct AutomationTab: View {
         Form {
             Section("Timing Delays") {
                 DelaySlider(label: "Activation Delay", value: $store.settings.activationDelay, range: 0.1...1.0)
-                DelaySlider(label: "Quick Actions Delay", value: $store.settings.commandSlashDelay, range: 0.1...1.0)
+                DelaySlider(label: "Quick Actions Delay", value: $store.settings.commandSlashDelay, range: 0.1...2.0)
                 DelaySlider(label: "Typing Delay", value: $store.settings.typingDelay, range: 0.01...0.1)
-                DelaySlider(label: "Enter Delay", value: $store.settings.enterDelay, range: 0.1...1.0)
+                DelaySlider(label: "Enter Delay", value: $store.settings.enterDelay, range: 0.1...3.0)
+
+                Text("If the wrong plugin runs, raise Enter Delay. Recent Figma loads Quick Actions results asynchronously, so Enter must wait for your plugin to become the top result.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
 
             Section("Accessibility") {
